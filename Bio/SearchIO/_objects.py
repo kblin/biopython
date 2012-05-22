@@ -31,7 +31,7 @@ class _StickyObject(object):
         from slicing).
 
         The reason this method is necessary is because different parsers will
-        set different attributes for each Result, Hit, or HSP object they use,
+        set different attributes for each QueryResult, Hit, or HSP object they use,
         depending on the attributes they found in the search output file.
         Ideally, we want these attributes to 'stick' with any new instance
         object created from the original one.
@@ -43,35 +43,35 @@ class _StickyObject(object):
                 setattr(obj, attr, self.__dict__[attr])
 
 
-class Result(_StickyObject):
+class QueryResult(_StickyObject):
 
     # TODO: Check for self.filter()? Or implement this in SearchIO.parse?
 
     """Class representing search results from a single query.
 
-    The Result object is a container for storing all search hits from a single
+    The QueryResult object is a container for storing all search hits from a single
     search query. It is the top-level object returned by SearchIO's two main
     functions, SearchIO.read:
 
     >>> from Bio import SearchIO
-    >>> result = SearchIO.read('tblastx_human_wnts.xml', 'blast-xml')
-    >>> result
-    Result(program='TBLASTX', target='refseq_mrna', id='gi|195230749:301-1383', 5 hits)
+    >>> qresult = SearchIO.read('tblastx_human_wnts.xml', 'blast-xml')
+    >>> qresult
+    QueryResult(program='TBLASTX', target='refseq_mrna', id='gi|195230749:301-1383', 5 hits)
 
     and SearchIO.parse:
 
-    >>> results = SearchIO.parse('tblastx_human_wnts.xml', 'blast-xml')
-    >>> result = results.next()
-    >>> result
-    Result(program='TBLASTX', target='refseq_mrna', id='gi|195230749:301-1383', 5 hits)
+    >>> qresults = SearchIO.parse('tblastx_human_wnts.xml', 'blast-xml')
+    >>> qresult = qresults.next()
+    >>> qresult
+    QueryResult(program='TBLASTX', target='refseq_mrna', id='gi|195230749:301-1383', 5 hits)
 
-    Result is basically a container of the hits (see Hit objects) from one
+    QueryResult is basically a container of the hits (see Hit objects) from one
     query sequence. Its length is how many hits it has and iteration over a
-    Result object returns Hit objects.
+    QueryResult object returns Hit objects.
 
-    >>> len(result)
+    >>> len(qresult)
     5
-    >>> for hit in result:
+    >>> for hit in qresult:
     ...     print hit.id
     ...
     gi|195230749|ref|NM_003391.2|
@@ -80,81 +80,81 @@ class Result(_StickyObject):
     gi|274325896|ref|NM_001168687.1|
     gi|209529663|ref|NM_001135848.1|
 
-    Result objects behaves like a hybrid of Python's built-in list and
+    QueryResult objects behaves like a hybrid of Python's built-in list and
     dictionary, enabling retrieval of search hits using its index (integer) or
     its key (string, defaults to ID).
 
     Indexing using integers works exactly the same as Python lists:
 
-    >>> first_hit = result[0]
+    >>> first_hit = qresult[0]
     >>> first_hit
     Hit(id='gi|195230749|ref|NM_003391.2|', query_id='gi|195230749:301-1383', 10 alignments)
 
-    >>> last_hit = result[-1]
+    >>> last_hit = qresult[-1]
     >>> last_hit
     Hit(id='gi|209529663|ref|NM_001135848.1|', query_id='gi|195230749:301-1383', 10 alignments)
 
     Indexing using hit IDs works just like Python dictionaries. This is useful
     if you know what you are expecting from the search beforehand.
 
-    >>> result['gi|195230749|ref|NM_003391.2|']
+    >>> qresult['gi|195230749|ref|NM_003391.2|']
     Hit(id='gi|195230749|ref|NM_003391.2|', query_id='gi|195230749:301-1383', 10 alignments)
 
-    To get a list of all the hits contained in a Result object, you can use
+    To get a list of all the hits contained in a QueryResult object, you can use
     the hits attribute. To obtain all the hit keys, the hit_keys attribute
     is used.
 
-    >>> result.hits
+    >>> qresult.hits
     [Hit(id='gi|195230749|ref|NM_003391.2|', query_id='gi|195230749:301-1383', 10 alignments), Hit(id='gi|281183280|ref|NM_001168718.1|', query_id='gi|195230749:301-1383', 10 alignments), Hit(id='gi|281182577|ref|NM_001168597.1|', query_id='gi|195230749:301-1383', 10 alignments), Hit(id='gi|274325896|ref|NM_001168687.1|', query_id='gi|195230749:301-1383', 10 alignments), Hit(id='gi|209529663|ref|NM_001135848.1|', query_id='gi|195230749:301-1383', 10 alignments)]
 
-    >>> result.hit_keys
+    >>> qresult.hit_keys
     [u'gi|195230749|ref|NM_003391.2|', u'gi|281183280|ref|NM_001168718.1|', u'gi|281182577|ref|NM_001168597.1|', u'gi|274325896|ref|NM_001168687.1|', u'gi|209529663|ref|NM_001135848.1|']
 
-    Similar to Python lists, you can also slice Result objects. However,
-    instead of returning a list, slicing will return a new Result object.
-    The new Result object will have its hits sliced accordingly and attributes
-    present in the unsliced Result object are retained.
+    Similar to Python lists, you can also slice QueryResult objects. However,
+    instead of returning a list, slicing will return a new QueryResult object.
+    The new QueryResult object will have its hits sliced accordingly and attributes
+    present in the unsliced QueryResult object are retained.
 
-    >>> result
-    Result(program='TBLASTX', target='refseq_mrna', id='gi|195230749:301-1383', 5 hits)
-    >>> sliced_result = result[:3]
-    >>> sliced_result
-    Result(program='TBLASTX', target='refseq_mrna', id='gi|195230749:301-1383', 3 hits)
-    >>> len(result)
+    >>> qresult
+    QueryResult(program='TBLASTX', target='refseq_mrna', id='gi|195230749:301-1383', 5 hits)
+    >>> sliced_qresult = qresult[:3]
+    >>> sliced_qresult
+    QueryResult(program='TBLASTX', target='refseq_mrna', id='gi|195230749:301-1383', 3 hits)
+    >>> len(qresult)
     5
-    >>> len(sliced_result)
+    >>> len(sliced_qresult)
     3
-    >>> result.program
+    >>> qresult.program
     u'TBLASTX'
-    >>> result.program == sliced_result.program
+    >>> qresult.program == sliced_qresult.program
     True
-    >>> result[0] in sliced_result
+    >>> qresult[0] in sliced_qresult
     True
-    >>> result[4] in sliced_result
+    >>> qresult[4] in sliced_qresult
     False
 
-    You can check whether a hit is present in a Result object using its key
+    You can check whether a hit is present in a QueryResult object using its key
     (defaults to hit ID) or the Hit object itself.
 
-    >>> hit = result[0]
-    >>> hit in result
+    >>> hit = qresult[0]
+    >>> hit in qresult
     True
-    >>> hit.id in result
+    >>> hit.id in qresult
     True
 
-    Finally, Result objects has other methods normally used in Python lists:
+    Finally, QueryResult objects has other methods normally used in Python lists:
     append(), index(), pop(), and sort(). Consult their documentation for more
     information.
 
     """
 
-    # attributes we don't want to transfer when creating a new Result class
+    # attributes we don't want to transfer when creating a new QueryResult class
     # from this one
     _NON_STICKY_ATTRS = ('_hits',)
 
     def __init__(self, query_id, hits=[], meta={}, program='<unknown>', \
             target='<unknown>', hit_key_function=lambda hit: hit.id):
-        """Initializes a Result object.
+        """Initializes a QueryResult object.
 
         Arguments:
         query_id -- String of query sequence ID.
@@ -189,7 +189,7 @@ class Result(_StickyObject):
         hit = 'hit'
         if len(self) != 1:
             hit += 's'
-        return "Result(program='%s', target='%s', id='%s', %i %s)" % \
+        return "QueryResult(program='%s', target='%s', id='%s', %i %s)" % \
                 (self.program, self.target, self.id, len(self), hit)
 
     # handle Python 2 OrderedDict behavior
@@ -278,10 +278,10 @@ class Result(_StickyObject):
         """
         # only accept string keys
         if not isinstance(hit_key, basestring):
-            raise TypeError("Result object keys must be a string.")
+            raise TypeError("QueryResult object keys must be a string.")
         # hit must be a Hit object
         if not isinstance(hit, Hit):
-            raise TypeError("Result objects can only contain Hit objects.")
+            raise TypeError("QueryResult objects can only contain Hit objects.")
         # and it must have the same query ID as this object's ID
         if hit.query_id != self.id:
             raise ValueError("Expected Hit with query ID '%s', found '%s' "
@@ -327,10 +327,10 @@ class Result(_StickyObject):
             # object)
             return hit.hsps[hsp_rank]
 
-        # retrieval using slice objects returns another Result object
+        # retrieval using slice objects returns another QueryResult object
         elif isinstance(hit_key, slice):
             # should we return just a list of Hits instead of a full blown
-            # Result object if it's a slice?
+            # QueryResult object if it's a slice?
             hits = list(self.hits)[hit_key]
             obj =  self.__class__(self.id, hits, self.meta, self.program, \
                     self.target, self._hit_key_function)
@@ -401,14 +401,14 @@ class Result(_StickyObject):
             return
 
     def append(self, hit):
-        """Adds a Hit object to the end of Result.
+        """Adds a Hit object to the end of QueryResult.
 
         Argument:
         hit -- Hit object.
 
         The hit key used for the appended Hit object depends on the
-        hit_key_function used to initialize the Result object. Any Hit object
-        appended must have the same query_id attribute as the Result object's
+        hit_key_function used to initialize the QueryResult object. Any Hit object
+        appended must have the same query_id attribute as the QueryResult object's
         id attribute. If the hit key already exists, a ValueError will be
         raised.
 
@@ -422,7 +422,7 @@ class Result(_StickyObject):
         if hit_key not in self:
             self[hit_key] = hit
         else:
-            raise ValueError("Hit '%s' already present in this Result." % \
+            raise ValueError("Hit '%s' already present in this QueryResult." % \
                     hit_key)
 
     # marker for default self.pop() return value
@@ -440,14 +440,14 @@ class Result(_StickyObject):
                    specified index or hit key is not found.
 
         By default, pop will remove and return the last Hit object in the
-        Result object. To remove specific Hit objects, you can use its integer
+        QueryResult object. To remove specific Hit objects, you can use its integer
         index or its hit key.
 
         >>> from Bio import SearchIO
-        >>> result = SearchIO.read('tblastx_human_wnts.xml', 'blast-xml')
-        >>> len(result)
+        >>> qresult = SearchIO.read('tblastx_human_wnts.xml', 'blast-xml')
+        >>> len(qresult)
         5
-        >>> for hit in result:
+        >>> for hit in qresult:
         ...     print hit.id
         ...
         gi|195230749|ref|NM_003391.2|
@@ -456,16 +456,16 @@ class Result(_StickyObject):
         gi|274325896|ref|NM_001168687.1|
         gi|209529663|ref|NM_001135848.1|
 
-        >>> result.pop()
+        >>> qresult.pop()
         Hit(id='gi|209529663|ref|NM_001135848.1|', query_id='gi|195230749:301-1383', 10 alignments)
 
-        >>> result.pop(0)
+        >>> qresult.pop(0)
         Hit(id='gi|195230749|ref|NM_003391.2|', query_id='gi|195230749:301-1383', 10 alignments)
 
-        >>> result.pop('gi|281182577|ref|NM_001168597.1|')
+        >>> qresult.pop('gi|281182577|ref|NM_001168597.1|')
         Hit(id='gi|281182577|ref|NM_001168597.1|', query_id='gi|195230749:301-1383', 10 alignments)
 
-        >>> len(result)
+        >>> len(qresult)
         2
 
         """
@@ -493,13 +493,13 @@ class Result(_StickyObject):
         hit_key -- String of hit key or Hit object.
 
         >>> from Bio import SearchIO
-        >>> result = SearchIO.read('tblastx_human_wnts.xml', 'blast-xml')
-        >>> result.index('gi|209529663|ref|NM_001135848.1|')
+        >>> qresult = SearchIO.read('tblastx_human_wnts.xml', 'blast-xml')
+        >>> qresult.index('gi|209529663|ref|NM_001135848.1|')
         4
-        >>> hit = result['gi|209529663|ref|NM_001135848.1|']
-        >>> result.index(hit)
+        >>> hit = qresult['gi|209529663|ref|NM_001135848.1|']
+        >>> qresult.index(hit)
         4
-        >>> result.index('my_key')
+        >>> qresult.index('my_key')
         -1
 
         This method is useful for finding out the integer index (usually
@@ -522,8 +522,8 @@ class Result(_StickyObject):
         reverse -- Boolean, whether to reverse the sorting or not.
 
         >>> from Bio import SearchIO
-        >>> result = SearchIO.read('tblastx_human_wnts.xml', 'blast-xml')
-        >>> for hit in result:
+        >>> qresult = SearchIO.read('tblastx_human_wnts.xml', 'blast-xml')
+        >>> for hit in qresult:
         ...     print hit.id
         ...
         gi|195230749|ref|NM_003391.2|
@@ -532,8 +532,8 @@ class Result(_StickyObject):
         gi|274325896|ref|NM_001168687.1|
         gi|209529663|ref|NM_001135848.1|
 
-        >>> result.sort(reverse=True)
-        >>> for hit in result:
+        >>> qresult.sort(reverse=True)
+        >>> for hit in qresult:
         ...     print hit.id
         ...
         gi|209529663|ref|NM_001135848.1|
@@ -542,8 +542,8 @@ class Result(_StickyObject):
         gi|281183280|ref|NM_001168718.1|
         gi|195230749|ref|NM_003391.2|
 
-        >>> result.sort(key=lambda hit: hit.id)
-        >>> for hit in result:
+        >>> qresult.sort(key=lambda hit: hit.id)
+        >>> for hit in qresult:
         ...     print hit.id
         ...
         gi|195230749|ref|NM_003391.2|
@@ -593,13 +593,13 @@ class Hit(_StickyObject):
     """Class representing a single database hit of a search result.
 
     Hit objects are the second-level container in the SearchIO module. They
-    are the objects contained within a Result object (see Result). Each Hit
+    are the objects contained within a QueryResult object (see QueryResult). Each Hit
     object is uniquely identified by its ID and the query ID that results in
     its creation.
 
     >>> from Bio import SearchIO
-    >>> result = SearchIO.read('tblastx_human_wnts.xml', 'blast-xml')
-    >>> hit = result[0]
+    >>> qresult = SearchIO.read('tblastx_human_wnts.xml', 'blast-xml')
+    >>> hit = qresult[0]
     >>> hit
     Hit(id='gi|195230749|ref|NM_003391.2|', query_id='gi|195230749:301-1383', 10 alignments)
 
@@ -652,7 +652,7 @@ class Hit(_StickyObject):
     >>> hit[6] in sliced_hit
     False
 
-    You can check whether an hsp is present in a Result object using the HSP
+    You can check whether an hsp is present in a QueryResult object using the HSP
     object itself.
 
     >>> hsp = hit[0]
@@ -785,8 +785,8 @@ class HSP(_StickyObject):
     set to None.
 
     >>> from Bio import SearchIO
-    >>> result = SearchIO.read('tblastx_human_wnts.xml', 'blast-xml')
-    >>> hsp = result[0][0]
+    >>> qresult = SearchIO.read('tblastx_human_wnts.xml', 'blast-xml')
+    >>> hsp = qresult[0][0]
     >>> hsp
     HSP(hit_id='gi|195230749|ref|NM_003391.2|', query_id='gi|195230749:301-1383', evalue=0.0, 340-column alignment)
 
@@ -817,9 +817,9 @@ class HSP(_StickyObject):
     EVNSSWWYMRATGGSSRVMCDNVPGLVSSQRQLCHRHPDVMRAI...AT* gi|195230749:301-1383
     EVNSSWWYMRATGGSSRVMCDNVPGLVSSQRQLCHRHPDVMRAI...AT* gi|195230749|ref|NM_003391.2|
     >>> print hsp[10:20].alignment
-    SingleLetterAlphabet() alignment with 2 rows and 20 columns
-    ATGGSSRVMCDNVPGLVSSQ gi|195230749:301-1383
-    ATGGSSRVMCDNVPGLVSSQ gi|195230749|ref|NM_003391.2|
+    SingleLetterAlphabet() alignment with 2 rows and 10 columns
+    ATGGSSRVMC gi|195230749:301-1383
+    ATGGSSRVMC gi|195230749|ref|NM_003391.2|
 
     Finally, doing a len() on an HSP object will return the column length of
     the contained pairwise alignment. Note that this is different from a
