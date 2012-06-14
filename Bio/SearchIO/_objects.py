@@ -26,7 +26,7 @@ _INTS = (
         # hit-specific attributes
         'domain_obs_num',
         # hsp-specific attributes
-        'init_len', 'ident_num', 'pos_num', 'mismatch_num', 'gap_num',
+        'ali_len', 'ident_num', 'pos_num', 'mismatch_num', 'gap_num',
         'query_from', 'query_to', 'hit_from', 'hit_to', 'query_frame',
         'hit_frame', 'gapopen_num', 'env_from', 'env_to', 'domain_index',
         'gapopen_num', 'bitscore_raw',
@@ -1146,7 +1146,7 @@ class HSP(BaseSearchObject):
 
     hit_span = property(fget=_hit_span_get)
 
-    # The properties init_len, gap_num, mismatch_num, and ident_num are all
+    # The properties ali_len, gap_num, mismatch_num, and ident_num are all
     # interconnected ~ we can infer the value of one if the others are all
     # known. So the idea here is to enable the HSP object to compute these
     # values if enough is known.
@@ -1154,24 +1154,24 @@ class HSP(BaseSearchObject):
     # over computed values*. So if the parsed information is available,
     # computation is never done as the parsed values are used instead.
 
-    def _init_len_get(self):
-        if not hasattr(self, '_init_len'):
+    def _ali_len_get(self):
+        if not hasattr(self, '_ali_len'):
             try:
-                self._init_len = self._ident_num + self._mismatch_num + \
+                self._ali_len = self._ident_num + self._mismatch_num + \
                         self._gap_num
             except AttributeError:
                 raise AttributeError("Not enough is known to compute initial length")
-        return self._init_len
+        return self._ali_len
 
-    def _init_len_set(self, value):
-        self._init_len = value
+    def _ali_len_set(self, value):
+        self._ali_len = value
 
-    init_len = property(fget=_init_len_get, fset=_init_len_set)
+    ali_len = property(fget=_ali_len_get, fset=_ali_len_set)
 
     def _ident_num_get(self):
         if not hasattr(self, '_ident_num'):
             try:
-                self._ident_num = self._init_len - self._mismatch_num - \
+                self._ident_num = self._ali_len - self._mismatch_num - \
                         self._gap_num
             except AttributeError:
                 raise AttributeError("Not enough is known to compute identities")
@@ -1185,7 +1185,7 @@ class HSP(BaseSearchObject):
     def _mismatch_num_get(self):
         if not hasattr(self, '_mismatch_num'):
             try:
-                self._mismatch_num = self._init_len - self._ident_num - \
+                self._mismatch_num = self._ali_len - self._ident_num - \
                         self._gap_num
             except AttributeError:
                 raise AttributeError("Not enough is known to compute mismatches")
@@ -1199,7 +1199,7 @@ class HSP(BaseSearchObject):
     def _gap_num_get(self):
         if not hasattr(self, '_gap_num'):
             try:
-                self._gap_num = self._init_len - self._ident_num - \
+                self._gap_num = self._ali_len - self._ident_num - \
                         self._mismatch_num
             except AttributeError:
                 raise AttributeError("Not enough is known to compute gaps")
@@ -1235,7 +1235,7 @@ class HSP(BaseSearchObject):
     def _ident_pct_get(self):
         if not hasattr(self, '_ident_pct'):
             try:
-                self._ident_pct = self.ident_num / float(self.init_len) * 100
+                self._ident_pct = self.ident_num / float(self.ali_len) * 100
             except AttributeError:
                 raise AttributeError("Not enough is known to compute identity percentage")
         return self._ident_pct
@@ -1248,7 +1248,7 @@ class HSP(BaseSearchObject):
     def _pos_pct_get(self):
         if not hasattr(self, '_pos_pct'):
             try:
-                self._pos_pct = self.pos_num / float(self.init_len) * 100
+                self._pos_pct = self.pos_num / float(self.ali_len) * 100
             except AttributeError:
                 raise AttributeError("Not enough is known to compute positive percentage")
         return self._pos_pct
@@ -1261,7 +1261,7 @@ class HSP(BaseSearchObject):
     def _gap_pct_get(self):
         if not hasattr(self, '_gap_pct'):
             try:
-                self._gap_pct = self.gap_num / float(self.init_len) * 100
+                self._gap_pct = self.gap_num / float(self.ali_len) * 100
             except AttributeError:
                 raise AttributeError("Not enough is known to compute gap percentage")
         return self._gap_pct
