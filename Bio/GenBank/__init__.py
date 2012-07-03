@@ -1065,8 +1065,8 @@ class _FeatureConsumer(_BaseGenBankConsumer):
             if key not in self._cur_feature.qualifiers:
                 self._cur_feature.qualifiers[key] = [""]
                 return
-            
-        value = value.replace('"', '')
+        if hasattr(value, "replace"):
+            value = value.replace('"', '')
         if self._feature_cleaner is not None:
             value = self._feature_cleaner.clean_value(key, value)
 

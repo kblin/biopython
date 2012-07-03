@@ -286,6 +286,11 @@ class InsdcScanner(object):
                     else:
                         #Unquoted
                         #if debug : print "Unquoted line %s:%s" % (key,value)
+                        try:
+                            tmp = int(value)
+                            value = tmp
+                        except ValueError:
+                            pass
                         qualifiers.append((key,value))
                 else:
                     #Unquoted continuation
@@ -349,7 +354,7 @@ class InsdcScanner(object):
             consumer.feature_key(feature_key)
             consumer.location(location_string)
             for q_key, q_value in qualifiers:
-                if q_value is None:
+                if q_value is None or not hasattr(q_value, "replace"):
                     consumer.feature_qualifier(q_key, q_value)
                 else:
                     consumer.feature_qualifier(q_key, q_value.replace("\n"," "))
