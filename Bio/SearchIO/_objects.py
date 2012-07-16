@@ -837,7 +837,7 @@ class Hit(BaseSearchObject):
         same query_id as the Hit object's query_id.
 
         """
-        if not isinstance(hsp, HSP):
+        if not isinstance(hsp, BaseHSP):
             raise TypeError("Hit objects can only contain HSP objects.")
         if hsp.hit_id != self.id:
             raise ValueError("Expected HSP with hit ID '%s', found '%s' "
@@ -925,7 +925,7 @@ class Hit(BaseSearchObject):
             return obj
 
 
-class HSP(BaseSearchObject):
+class BaseHSP(BaseSearchObject):
 
     """Abstract class representing high-scoring region between query and hit."""
 
@@ -1204,7 +1204,7 @@ class HSP(BaseSearchObject):
     gap_pct = property(fget=_gap_pct_get, fset=_gap_pct_set)
 
 
-class ContiguousHSP(HSP):
+class HSP(BaseHSP):
 
     """Class representing a single, contiguous HSP."""
 
@@ -1220,7 +1220,7 @@ class ContiguousHSP(HSP):
         query_seq -- String or SeqRecord object of the aligned query sequence.
 
         """
-        HSP.__init__(self, hit_id, query_id, alphabet)
+        BaseHSP.__init__(self, hit_id, query_id, alphabet)
         
         if query_seq:
             self.query = query_seq
@@ -1228,7 +1228,7 @@ class ContiguousHSP(HSP):
             self.hit = hit_seq
 
     def __iter__(self):
-        raise TypeError("ContiguousHSP objects do not support iteration.")
+        raise TypeError("HSP objects do not support iteration.")
 
     def __len__(self):
         # len should return alignment length if alignment is not None
@@ -1236,7 +1236,7 @@ class ContiguousHSP(HSP):
             assert len(self.query) == len(self.hit)
             return len(self.query)
         except AttributeError:
-            raise TypeError("ContiguousHSP objects without alignment does "
+            raise TypeError("HSP objects without alignment does "
                     "not have any length.")
 
     def __repr__(self):
@@ -1356,14 +1356,14 @@ class ContiguousHSP(HSP):
                     obj.alignment_annotation[key] = value[idx]
             return obj
         else:
-            raise TypeError("Slicing for ContiguousHSP objects without "
+            raise TypeError("Slicing for HSP objects without "
                     "alignment is not supported.")
 
     def __delitem__(self, idx):
-        raise TypeError("ContiguousHSP objects are read-only.")
+        raise TypeError("HSP objects are read-only.")
 
     def __setitem__(self, idx, value):
-        raise TypeError("ContiguousHSP objects are read-only.")
+        raise TypeError("HSP objects are read-only.")
 
     def _hit_get(self):
         return self._hit
@@ -1389,13 +1389,13 @@ class ContiguousHSP(HSP):
     alignment = property(fget=_alignment_get)
 
 
-class SegmentedHSP(HSP):
+class GappedHSP(BaseHSP):
 
-    """Class representing a segmented HSP."""
+    """Class representing a HSP separated by gaps into blocks."""
 
     def __init__(self, hit_id=None, query_id=None, blocks=[], \
             alphabet=single_letter_alphabet):
-        """Initializes an HSP object.
+        """Initializes a GappedHSP object.
 
         Arguments:
         hit_id -- String, Hit ID of the HSP object.
@@ -1404,7 +1404,7 @@ class SegmentedHSP(HSP):
                   a hit sequence pair.
 
         """
-        HSP.__init__(self, hit_id, query_id, alphabet)
+        BaseHSP.__init__(self, hit_id, query_id, alphabet)
 
         if blocks:
             self.query = [x[0] for x in blocks]
