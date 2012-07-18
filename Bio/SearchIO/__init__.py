@@ -84,6 +84,7 @@ _ITERATOR_MAP = {
         'hmmscan-domtab': ('HmmerIO', 'HmmerDomtabHmmhitIterator'),
         'hmmsearch-domtab': ('HmmerIO', 'HmmerDomtabHmmqueryIterator'),
         'phmmer-domtab': ('HmmerIO', 'HmmerDomtabHmmqueryIterator'),
+        'hmmer2-text': ('HmmerIO', 'Hmmer2TextIterator'),
 }
 
 # dictionary of supported formats for index()

@@ -25,6 +25,7 @@ More information are available through these links:
 
 from hmmerdomtab import *
 from hmmertext import *
+from hmmer2text import *
 from hmmertab import *
 
 
