@@ -706,7 +706,7 @@ class Hit(BaseSearchObject):
 
     # attributes we don't want to transfer when creating a new Hit class
     # from this one
-    _NON_STICKY_ATTRS = ('_batch_hsps',)
+    _NON_STICKY_ATTRS = ('_items',)
 
     def __init__(self, id=None, query_id=None, hsps=[]):
         """Initializes a Hit object.
@@ -726,7 +726,7 @@ class Hit(BaseSearchObject):
         self._query_id= query_id
         self._description = ''
 
-        self._batch_hsps = []
+        self._items = []
         for hsp in hsps:
             # validate each HSP
             self._validate_hsp(hsp)
@@ -796,7 +796,7 @@ class Hit(BaseSearchObject):
         return '\n'.join(lines)
 
     def __reversed__(self):
-        obj = self.__class__(self.id, self.query_id, reversed(self._batch_hsps))
+        obj = self.__class__(self.id, self.query_id, reversed(self._items))
         self._transfer_attrs(obj)
         return obj
 
@@ -808,7 +808,7 @@ class Hit(BaseSearchObject):
         else:
             self._validate_hsp(hsps)
 
-        self._batch_hsps[idx] = hsps
+        self._items[idx] = hsps
 
     def __getitem__(self, idx):
         # if key is slice, return a new Hit instance
@@ -817,10 +817,10 @@ class Hit(BaseSearchObject):
             obj = self.__class__(self.id, self.query_id, self.batch_hsps[idx])
             self._transfer_attrs(obj)
             return obj
-        return self._batch_hsps[idx]
+        return self._items[idx]
 
     def __delitem__(self, idx):
-        del self._batch_hsps[idx]
+        del self._items[idx]
 
     def _validate_hsp(self, hsp):
         """Validates an HSP object.
@@ -867,7 +867,7 @@ class Hit(BaseSearchObject):
     hsps = property(fget=_hsps_get)
 
     def _batch_hsps_get(self):
-        return self._batch_hsps
+        return self._items
 
     batch_hsps = property(fget=_batch_hsps_get)
 
@@ -895,7 +895,7 @@ class Hit(BaseSearchObject):
 
     def append(self, hsp):
         self._validate_hsp(hsp)
-        self._batch_hsps.append(hsp)
+        self._items.append(hsp)
 
     def filter(self, func=None, batch=True):
         """Creates a new Hit object whose HSP objects pass the filter function."""
@@ -920,12 +920,12 @@ class Hit(BaseSearchObject):
             return obj
 
     def pop(self, index=-1):
-        hsp = self._batch_hsps.pop(index)
+        hsp = self._items.pop(index)
         return hsp
 
     def sort(self, key=None, reverse=False, in_place=True):
         if in_place:
-            self._batch_hsps.sort(key=key, reverse=reverse)
+            self._items.sort(key=key, reverse=reverse)
         else:
             hsps = self.batch_hsps[:]
             hsps.sort(key=key, reverse=reverse)
