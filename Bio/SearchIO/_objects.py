@@ -5,7 +5,6 @@
 
 """Bio.SearchIO objects to model homology search program outputs (PRIVATE)."""
 
-import re
 import warnings
 from itertools import chain
 
@@ -19,10 +18,6 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Align import MultipleSeqAlignment
 from Bio.Alphabet import single_letter_alphabet
-
-
-# precompile regex patterns
-_RE_GAPOPEN = re.compile(r'\w-')
 
 
 class BaseSearchObject(object):
