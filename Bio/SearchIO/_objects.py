@@ -1119,12 +1119,7 @@ class HSP(BaseHSP):
             self._aln_span = self._items[0].aln_span
         else:
             if not hasattr(self, '_aln_span'):
-                if all([query.seq for query in self.queries]):
-                    self._aln_span = sum([len(query.seq) for query in self.queries])
-                elif all([hit.seq for hit in self.hits]):
-                    self._aln_span = sum([len(hit.seq) for hit in self.hits])
-                else:
-                    self._aln_span = None
+                self._aln_span = sum([frag.aln_span for frag in self.fragment])
 
         return self._aln_span
 
@@ -1297,7 +1292,7 @@ class HSPFragment(BaseHSP):
         info = "hit_id=%r, query_id=%r" % (self.hit_id, self.query_id)
         try:
             info += ", %i columns" % len(self)
-        except TypeError:
+        except AttributeError:
             pass
         return "%s(%s)" % (self.__class__.__name__, info)
 
@@ -1442,8 +1437,6 @@ class HSPFragment(BaseHSP):
                 self._aln_span = len(self.query)
             elif self.hit is not None:
                 self._aln_span = len(self.hit)
-            else:
-                self._aln_span = None
 
         return self._aln_span
 
