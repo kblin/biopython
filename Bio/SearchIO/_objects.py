@@ -25,7 +25,7 @@ __all__ = ['QueryResult', 'Hit', 'HSP', 'HSPFragment']
 
 
 # helper property functions
-def _singleitem(attr=None):
+def _singleitem(attr=None, doc=''):
     """Returns a property that fetches the given attribute from
     the first item in a SearchIO container object."""
     @property
@@ -36,10 +36,12 @@ def _singleitem(attr=None):
         if attr is None:
             return self._items[0]
         return getattr(self._items[0], attr)
+    if doc:
+        getter.__doc__ = doc
     return getter
 
 
-def _allitems(attr=None):
+def _allitems(attr=None, doc=''):
     """Returns a property that fetches the given attributes from
     all items in a SearchIO container object."""
     @property
@@ -47,10 +49,12 @@ def _allitems(attr=None):
         if attr is None:
             return self._items
         return [getattr(frag, attr) for frag in self._items]
+    if doc:
+        getter.__doc__ = doc
     return getter
 
 
-def _partialcascade(cont_attr, item_attr):
+def _partialcascade(cont_attr, item_attr, doc=''):
     """Returns a getter property with a cascading setter.
 
     This is used for the `id` and `description` properties of the container
@@ -68,10 +72,10 @@ def _partialcascade(cont_attr, item_attr):
         for item in self:
             setattr(item, item_attr, value)
 
-    return property(fget=getter, fset=setter)
+    return property(fget=getter, fset=setter, doc=doc)
 
 
-def _fullcascade(attr):
+def _fullcascade(attr, doc=''):
     """Returns a getter property with a cascading setter.
 
     This is similar to `_partialcascade`, but for SearchIO containers that have
@@ -92,7 +96,7 @@ def _fullcascade(attr):
         for item in self:
             setattr(item, attr, value)
 
-    return property(fget=getter, fset=setter)
+    return property(fget=getter, fset=setter, doc=doc)
 
 
 class _BaseSearchObject(object):
