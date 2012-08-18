@@ -85,6 +85,8 @@ DOCTEST_MODULES = [
                    "Bio.Motif",
                    "Bio.pairwise2",
                    "Bio.Phylo.Applications._Raxml",
+                   "Bio.SearchIO",
+                   "Bio.SearchIO._objects",
                    "Bio.Seq",
                    "Bio.SeqIO",
                    "Bio.SeqIO.FastaIO",
