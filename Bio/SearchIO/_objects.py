@@ -2097,7 +2097,7 @@ class HSPFragment(_BaseHSP):
             frame = getattr(self, '%s_frame' % seq_type)
             if frame is not None:
                 try:
-                    strand = frame / abs(frame)
+                    strand = frame // abs(frame)
                 except ZeroDivisionError:
                     strand = 0
                 setattr(self, '%s_strand' % seq_type, strand)
