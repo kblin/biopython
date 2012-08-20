@@ -12,7 +12,7 @@ try:
 except ImportError:
     from Bio.SearchIO._aux import OrderedDict
 
-from Bio.SearchIO._utils import partialcascade 
+from Bio.SearchIO._utils import partialcascade, trim_str
 
 from _base import _BaseSearchObject
 from hit import Hit
@@ -306,8 +306,7 @@ class QueryResult(_BaseSearchObject):
         if hasattr(self, 'seq_len'):
             qid_line += ' (%i)' % self.seq_len
         if self.description:
-            qid_line += QueryResult._trunc_display('\n         %s' %
-                    self.description, 80, '...')
+            qid_line += trim_str('\n         %s' % self.description, 80, '...')
         lines.append(qid_line)
 
         # set target line
