@@ -6,6 +6,7 @@
 """Bio.SearchIO object to model search results from a single query."""
 
 from copy import deepcopy
+from itertools import chain
 
 try:
     from collections import OrderedDict
@@ -390,6 +391,16 @@ class QueryResult(_BaseSearchObject):
     id = partialcascade('_id', 'query_id', """QueryResult ID string""")
     description = partialcascade('_description', 'query_description',
             """QueryResult description""")
+
+    @property
+    def hsps(self):
+        """HSP objects contained in the QueryResult."""
+        return [hsp for hsp in chain(*self.hits)]
+
+    @property
+    def fragments(self):
+        """HSPFragment objects contained in the QueryResult."""
+        return [frag for frag in chain(*self.hsps)]
 
     ## public methods ##
     def absorb(self, hit):
