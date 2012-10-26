@@ -85,6 +85,16 @@ DOCTEST_MODULES = [
                    "Bio.Motif",
                    "Bio.pairwise2",
                    "Bio.Phylo.Applications._Raxml",
+                   "Bio.SearchIO",
+                   "Bio.SearchIO._model",
+                   "Bio.SearchIO._model.query",
+                   "Bio.SearchIO._model.hit",
+                   "Bio.SearchIO._model.hsp",
+                   "Bio.SearchIO.BlastIO",
+                   "Bio.SearchIO.HmmerIO",
+                   "Bio.SearchIO.FastaIO",
+                   "Bio.SearchIO.BlatIO",
+                   "Bio.SearchIO.ExonerateIO",
                    "Bio.Seq",
                    "Bio.SeqIO",
                    "Bio.SeqIO.FastaIO",
@@ -114,6 +124,7 @@ try:
 except ImportError:
     #Missing on Jython or Python 2.4
     DOCTEST_MODULES.remove("Bio.SeqIO")
+    DOCTEST_MODULES.remove("Bio.SearchIO")
 
 #Skip Bio.Seq doctest under Python 3, see http://bugs.python.org/issue7490
 if sys.version_info[0] == 3:
@@ -350,7 +361,7 @@ class TestRunner(unittest.TextTestRunner):
                 sys.stderr.write("%s docstring test ... " % name)
                 #Can't use fromlist=name.split(".") until python 2.5+
                 module = __import__(name, None, None, name.split("."))
-                suite = doctest.DocTestSuite(module)
+                suite = doctest.DocTestSuite(module, optionflags=doctest.ELLIPSIS)
                 del module
             suite.run(result)
             if cur_dir != os.path.abspath("."):
