@@ -8,11 +8,7 @@
 from copy import deepcopy
 from itertools import chain
 
-try:
-    from collections import OrderedDict
-except ImportError:
-    from Bio.SearchIO._aux import OrderedDict
-
+from Bio._py3k import OrderedDict
 from Bio.SearchIO._utils import partialcascade, trim_str
 
 from _base import _BaseSearchObject
