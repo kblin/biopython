@@ -22,8 +22,9 @@ import os
 import sys
 import contextlib
 import itertools
+import io
 
-from Bio._py3k import basestring
+from Bio._py3k import basestring, _binary_to_string_handle
 
 try:
     from collections import UserDict as _dict_base
@@ -87,7 +88,10 @@ def as_handle(handleish, mode='r', **kwargs):
             with open(handleish, mode, **kwargs) as fp:
                 yield fp
     else:
-        yield handleish
+        if 'b' not in mode and isinstance(handleish, io.BufferedIOBase):
+            yield _binary_to_string_handle(handleish)
+        else:
+            yield handleish
 
 
 def _open_for_random_access(filename):

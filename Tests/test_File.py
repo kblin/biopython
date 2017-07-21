@@ -83,7 +83,7 @@ class AsHandleTestCase(unittest.TestCase):
         "Test as_handle with a file-like object argument"
         p = self._path('test_file.fasta')
         with open(p, 'wb') as fp:
-            with File.as_handle(fp) as handle:
+            with File.as_handle(fp, 'wb') as handle:
                 self.assertEqual(fp, handle, "as_handle should "
                         "return argument when given a file-like object")
                 self.assertFalse(handle.closed)

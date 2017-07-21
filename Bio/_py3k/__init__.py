@@ -98,7 +98,12 @@ if sys.version_info[0] >= 3:
     # Python 3.4 onwards, the standard library wrappers should work:
     def _binary_to_string_handle(handle):
         """Treat a binary (bytes) handle like a text (unicode) handle."""
-        wrapped = io.TextIOWrapper(io.BufferedReader(handle))
+        if handle.writable():
+            wrapped = io.BufferedWriter(handle)
+        else:
+            wrapped = io.BufferedReader(handle)
+
+        wrapped = io.TextIOWrapper(wrapped)
         try:
             # If wrapping an online handle, this is nice to have:
             wrapped.url = handle.url
