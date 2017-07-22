@@ -106,6 +106,51 @@ if sys.version_info[0] >= 3:
             pass
         return wrapped
 
+    def is_binary_handle(handle):
+        r"""Check if a handle will give/take bytes on read/write
+
+        Arguments:
+         - handle   - handle to check if it is binary
+
+        Example:
+
+        >>> with open('seq.fasta', 'w') as handle:
+        ...     is_binary_handle(handle)
+        False
+
+        >>> with open('test.blob', 'wb') as handle:
+        ...     is_binary_handle(handle)
+        True
+        """
+        if 'b' in str(getattr(handle, 'mode', '')):
+            return True
+
+        # gzip handles hide their mode in their fileobj member in py3
+        if hasattr(handle, 'fileobj') and 'b' in str(getattr(handle.fileobj, 'mode', '')):
+            return True
+
+        if hasattr(handle, 'encoding'):
+            return False
+
+        # In python 3, binary handles are BufferedIOBase types
+        if isinstance(handle, io.BufferedIOBase):
+            if hasattr(handle, 'writable') and handle.writable():
+                # Can't read from it, so let's just hope it'd have an encoding if it was a string
+                return True
+            if hasattr(handle, 'readable'):
+                binary = False
+                oldpos = handle.tell()
+                teststr = handle.read(1)
+                if isinstance(teststr, bytes):
+                    binary = True
+                handle.seek(oldpos)
+                return binary
+            # We should never get here, because if we can neither read nor write our handle, we're in trouble.
+            return True
+
+        return False
+
+
     # This is to avoid the deprecation warning from open(filename, "rU")
     _universal_read_mode = "r"  # text mode does universal new lines
 
@@ -155,6 +200,13 @@ else:
     def _binary_to_string_handle(handle):
         """Treat a binary handle like a text handle."""
         return handle
+
+    def is_binary_handle(handle):
+        """Check if a handle will give/take bytes on read/write
+
+        In Python 2, this really doesn't matter, so we'll always claim no.
+        """
+        return False
 
     # This private variable is set to "r" on Python 3 for text
     # mode which include universal readlines mode
